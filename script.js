@@ -25,10 +25,10 @@ function inputDecimal(dot) {
 }
 
 function handleOperator(nextOperator) {
-    const { firstOperand, displayValue, operator } = calculator
+    const { firstOperand, displayValue, operator } = calculator;
     const inputValue = parseFloat(displayValue);
 
-    if (operator && calculator.waitingForSecondOperand)  {
+    if (operator && calculator.waitingForSecondOperand) {
         calculator.operator = nextOperator;
         return;
     }
@@ -48,13 +48,9 @@ function handleOperator(nextOperator) {
 
 const performCalculation = {
     '/': (firstOperand, secondOperand) => firstOperand / secondOperand,
-
     '*': (firstOperand, secondOperand) => firstOperand * secondOperand,
-
     '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
-
     '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
-
     '=': (firstOperand, secondOperand) => secondOperand
 };
 
@@ -97,7 +93,12 @@ keys.addEventListener('click', (event) => {
         return;
     }
 
+    if (target.classList.contains('equal-sign')) {
+        handleOperator(target.value);
+        updateDisplay();
+        return;
+    }
+
     inputDigit(target.value);
     updateDisplay();
 });
-``` ▋
