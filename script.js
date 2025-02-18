@@ -1,12 +1,13 @@
 const calculator = {
-    displayValue: '0',
+    displayValue: '',
     firstOperand: null,
     waitingForSecondOperand: false,
     operator: null,
+    equation: '',
 };
 
 function inputDigit(digit) {
-    const { displayValue, waitingForSecondOperand } = calculator;
+    const { displayValue, waitingForSecondOperand, equation } = calculator;
 
     if (waitingForSecondOperand === true) {
         calculator.displayValue = digit;
@@ -14,6 +15,8 @@ function inputDigit(digit) {
     } else {
         calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
     }
+
+    calculator.equation += digit;
 }
 
 function inputDecimal(dot) {
@@ -21,15 +24,17 @@ function inputDecimal(dot) {
 
     if (!calculator.displayValue.includes(dot)) {
         calculator.displayValue += dot;
+        calculator.equation += dot;
     }
 }
 
 function handleOperator(nextOperator) {
-    const { firstOperand, displayValue, operator } = calculator;
+    const { firstOperand, displayValue, operator, equation } = calculator;
     const inputValue = parseFloat(displayValue);
 
     if (operator && calculator.waitingForSecondOperand) {
         calculator.operator = nextOperator;
+        calculator.equation = equation.slice(0, -1) + nextOperator;
         return;
     }
 
@@ -44,6 +49,22 @@ function handleOperator(nextOperator) {
 
     calculator.waitingForSecondOperand = true;
     calculator.operator = nextOperator;
+    calculator.equation += nextOperator;
+}
+
+function handleEqualSign() {
+    const { firstOperand, displayValue, operator } = calculator;
+    const inputValue = parseFloat(displayValue);
+
+    if (firstOperand != null && operator && !isNaN(inputValue)) {
+        const result = performCalculation[operator](firstOperand, inputValue);
+
+        calculator.displayValue = String(result);
+        calculator.equation = '';
+        calculator.firstOperand = null;
+        calculator.waitingForSecondOperand = false;
+        calculator.operator = null;
+    }
 }
 
 const performCalculation = {
@@ -55,15 +76,16 @@ const performCalculation = {
 };
 
 function resetCalculator() {
-    calculator.displayValue = '0';
+    calculator.displayValue = '';
     calculator.firstOperand = null;
     calculator.waitingForSecondOperand = false;
     calculator.operator = null;
+    calculator.equation = '';
 }
 
 function updateDisplay() {
     const display = document.querySelector('#calculator-screen');
-    display.value = calculator.displayValue;
+    display.value = calculator.equation || calculator.displayValue || '0';
 }
 
 updateDisplay();
@@ -94,7 +116,7 @@ keys.addEventListener('click', (event) => {
     }
 
     if (target.classList.contains('equal-sign')) {
-        handleOperator(target.value);
+        handleEqualSign();
         updateDisplay();
         return;
     }
